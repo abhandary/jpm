@@ -11,54 +11,116 @@ struct WeatherSummary {
   let condition: String
   let conditionDescription: String
   let conditionIcon: String
-  let temp: Double
-  let tempMin: Double
-  let tempMax: Double
+  
+  static func from(weatherResponse: WeatherResponse) -> WeatherSummary? {
+    var summary: WeatherSummary? = nil
+    if let weather = weatherResponse.weather.first {
+      summary = WeatherSummary(condition: weather.main,
+                               conditionDescription: weather.weatherDescription,
+                               conditionIcon: weather.weatherDescription)
+    }
+    return summary
+  }
+}
+
+struct WeatherTemperature {
+  let temp: Int
+  let tempMin: Int
+  let tempMax: Int
+  
+  static func from(weatherResponse: WeatherResponse) -> WeatherTemperature {
+    WeatherTemperature(temp: Int(weatherResponse.main.temp),
+                       tempMin: Int(weatherResponse.main.tempMin),
+                       tempMax: Int(weatherResponse.main.tempMax))
+  }
 }
 
 struct WeatherDetails {
-  let feelsLike: Double
+  let feelsLike: Int
   let humidity: Int
   let pressure: Int
+  
+  static func from(weatherResponse: WeatherResponse) -> WeatherDetails {
+    WeatherDetails(feelsLike: Int(weatherResponse.main.feelsLike),
+                                 humidity: weatherResponse.main.humidity,
+                                 pressure: weatherResponse.main.pressure)
+  }
 }
 
-enum WindDirection {
-  case north
-  case south
-  case east
-  case west
-  case northwest
-  case northeast
-  case southeast
-  case southwest
+enum WindDirection: String {
+  case north = "N"
+  case south = "S"
+  case east = "E"
+  case west = "W"
+  case northwest = "NW"
+  case northeast = "NE"
+  case southeast = "SE"
+  case southwest = "SW"
+  
+  static func from(degrees: Int) -> WindDirection {
+    // @todo convert degrees to wind direction
+    return .north
+  }
 }
 
 struct WindModel {
-  let speed: Double
+  let speed: Int
   let direction: WindDirection
   let gust: Int
+  
+  static func from(weatherResponse: WeatherResponse) -> WindModel {
+    WindModel(speed: Int(weatherResponse.wind.speed),
+              direction: WindDirection.from(degrees: weatherResponse.wind.deg),
+              gust: weatherResponse.wind.gust)
+  }
 }
 
-enum PrecipitationCondition {
+enum WeatherPrecipitationCondition {
   case rain
   case snow
 }
 
-struct Precipitation {
-  let condition: PrecipitationCondition
+struct WeatherPrecipitation {
+  let condition: WeatherPrecipitationCondition
   let inches: Double
+  
+  static func from(weatherResponse: WeatherResponse) -> WeatherPrecipitation? {
+    if let rain = weatherResponse.rain, let oneHour = rain.oneHour {
+      return WeatherPrecipitation(condition: .rain, inches: oneHour)
+    }
+    if let snow = weatherResponse.snow, let oneHour = snow.oneHour {
+      return WeatherPrecipitation(condition: .snow, inches: oneHour)
+    }
+    return nil
+  }
 }
 
-struct Sun {
+struct WeatherSunTimes {
   let sunrise: Date
   let sunset: Date
+  
+  static func from(weatherResponse: WeatherResponse) -> WeatherSunTimes {
+    WeatherSunTimes(sunrise: Date(timeIntervalSince1970: TimeInterval(weatherResponse.sys.sunrise)),
+                    sunset: Date(timeIntervalSince1970: TimeInterval(weatherResponse.sys.sunset)))
+  }
 }
 
 struct WeatherModel {
   let cityName: String
-  let summary: WeatherSummary
+  let summary: WeatherSummary?
+  let temperature: WeatherTemperature
   let details: WeatherDetails
   let wind: WindModel
-  let precipitation: Precipitation?
-  let sun: Sun
+  let precipitation: WeatherPrecipitation?
+  let sun: WeatherSunTimes
+  
+  static func from(weatherResponse: WeatherResponse) -> WeatherModel {
+    WeatherModel(cityName: weatherResponse.cityName,
+                 summary: WeatherSummary.from(weatherResponse: weatherResponse),
+                 temperature:WeatherTemperature.from(weatherResponse: weatherResponse),
+                 details: WeatherDetails.from(weatherResponse: weatherResponse),
+                 wind: WindModel.from(weatherResponse: weatherResponse),
+                 precipitation: WeatherPrecipitation.from(weatherResponse: weatherResponse),
+                 sun: WeatherSunTimes.from(weatherResponse: weatherResponse))
+  }
 }

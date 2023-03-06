@@ -73,7 +73,16 @@ class WeatherViewModel {
       self.repo.fetchWeather(forCity: city,
                         state: state,
                         country: country) { result in
-        
+        switch(result) {
+        case .failure(let error):
+          Log.error(TAG, error)
+        case .success(let response):
+          // get weather model from weather response and update the published property
+          let weatherModel  = WeatherModel.from(weatherResponse: response)
+          DispatchQueue.main.async {
+            self.weather = weatherModel
+          }
+        }
       }
     }
   }
@@ -98,12 +107,5 @@ class WeatherViewModel {
         }
       }
     }
-  }
-  
-  // MARK - static helpers
-  
-  // massage the repo response and make it ready for use by the view
-  static func mapToWeatherModel(fromWeatherResponse weatherResponse: WeatherResponse) -> WeatherModel {
-      
   }
 }
