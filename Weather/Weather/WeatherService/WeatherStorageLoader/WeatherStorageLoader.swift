@@ -10,14 +10,12 @@ import CryptoKit
 
 private let TAG = "WeatherStorageLoader"
 
-struct WeatherStorageLoader {
-  
+struct WeatherStorageLoader : WeatherStorageLoaderProtocol {
   
   private let lastSearchResponseFile = "lastSearchResponseFile"
-  private let lastSearchFile = "lastSearchFile"
-  private let fileManager: FileManagerProtocol!
-  private let encoder: EncoderProtocol!
-  private let decoder: DecoderProtocol!
+  private let fileManager: FileManagerProtocol
+  private let encoder: EncoderProtocol
+  private let decoder: DecoderProtocol
   
   init(fileManager: FileManagerProtocol = FileManager.default,
        encoder: EncoderProtocol = CustomJSONEncoder(),
@@ -91,7 +89,7 @@ struct WeatherStorageLoader {
       Log.error(TAG, "nil directory URL")
       return nil
     }
-    let hashString = SHA256.hash(data:Data(lastSearchFile.utf8)).compactMap { String(format: "%02x", $0) }.joined()
+    let hashString = SHA256.hash(data:Data(lastSearchResponseFile.utf8)).compactMap { String(format: "%02x", $0) }.joined()
     return URL(string: "\(directoryURL.absoluteString)\(hashString)")
   }
   

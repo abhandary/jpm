@@ -12,15 +12,20 @@ import SwiftUI
 class WeatherViewController: UIViewController {
   var cancellables: Set<AnyCancellable> = []
   
+  let textBinding: TextLimitBinding = TextLimitBinding()
   let searchBar: UISearchBar
-  let tableView: UITableView!
-  let headerView: UIHostingController<WeatherHeaderView>!
-  let viewModel: WeatherViewModel!
+  let tableView: UITableView
+  let headerView: UIHostingController<WeatherHeaderView>
+  let stateView: UIHostingController<WeatherStateView>
+  let viewModel: WeatherViewModel
+  
+  var keyStroke: String = ""
   
   init(viewModel: WeatherViewModel) {
     self.viewModel = viewModel
     self.tableView = UITableView()
-    self.headerView = UIHostingController(rootView: WeatherHeaderView())
+    self.headerView = UIHostingController(rootView: WeatherHeaderView(searchText:""))
+    self.stateView = UIHostingController(rootView: WeatherStateView(state: textBinding))
     self.searchBar = UISearchBar()
     super.init(nibName: nil, bundle: nil)
   }
@@ -31,8 +36,12 @@ class WeatherViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+
+    view.backgroundColor = .white
     
     setupSearchBar()
+    setupStateView()
+    setupHeaderView()
     setupTableView()
     setupViewModel()
     NSLayoutConstraint.activate(staticConstraints())
@@ -44,16 +53,29 @@ extension WeatherViewController: UISearchBarDelegate {
   private func setupSearchBar() {
     self.searchBar.delegate = self
     self.searchBar.translatesAutoresizingMaskIntoConstraints = false
-    self.searchBar.prompt = "Enter a movie name to search"
+    self.searchBar.prompt = "Enter US city name to search, followed by state"
     self.view.addSubview(searchBar)
   }
   
   func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//    self.keyStroke = searchText
+    self.keyStroke = searchText
+  }
+  
+  func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+    print(self.keyStroke)
+    print(self.textBinding.text)
   }
   
   func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
- //   self.keyStroke = ""
+    self.keyStroke = ""
+  }
+}
+
+// MARK: - state view
+extension WeatherViewController {
+  func setupStateView() {
+    self.stateView.view.translatesAutoresizingMaskIntoConstraints = false
+    self.view.addSubview(self.stateView.view)
   }
 }
 
@@ -102,6 +124,14 @@ extension WeatherViewController: UITableViewDataSource {
   }
 }
 
+// MARK: - header view
+extension WeatherViewController {
+  func setupHeaderView() {
+    self.headerView.view.translatesAutoresizingMaskIntoConstraints = false
+    self.view.addSubview(self.headerView.view)
+  }
+}
+
 // MARK: - view model
 extension WeatherViewController {
   
@@ -128,10 +158,17 @@ extension WeatherViewController {
     
     // setup header view and table view contraints
     constraints.append(contentsOf:[
-      headerView.view.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+      searchBar.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+      searchBar.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+      searchBar.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+      
+      stateView.view.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
+      stateView.view.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+      stateView.view.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+      
+      headerView.view.topAnchor.constraint(equalTo: stateView.view.bottomAnchor),
       headerView.view.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
       headerView.view.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
-      headerView.view.heightAnchor.constraint(equalToConstant: WeatherViewController.WEATHER_HEADER_VIEW_HEIGHT),
       
       tableView.topAnchor.constraint(equalTo: headerView.view.topAnchor),
       tableView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),

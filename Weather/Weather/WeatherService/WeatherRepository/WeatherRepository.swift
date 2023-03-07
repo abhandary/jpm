@@ -12,9 +12,12 @@ struct WeatherRepository : WeatherRepositoryProtocol {
   private let TAG = "WeatherRepository"
 
   let networkLoader: WeatherNetworkLoaderProtocol
+  let storageLoader: WeatherStorageLoaderProtocol
 
-  init(networkLoader: WeatherNetworkLoaderProtocol) {
+  init(networkLoader: WeatherNetworkLoaderProtocol,
+       storageLoader: WeatherStorageLoaderProtocol) {
     self.networkLoader = networkLoader
+    self.storageLoader = storageLoader
   }
   
   // load last search

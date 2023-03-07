@@ -16,12 +16,9 @@ class WeatherViewModel {
   @MainActor @Published var weather : WeatherModel?
   
   private let repo: WeatherRepositoryProtocol
-  private let assetStore: AssetStoreProtocol
 
-  init(repo: WeatherRepositoryProtocol,
-       assetStore: AssetStoreProtocol) {
+  init(repo: WeatherRepositoryProtocol) {
     self.repo = repo
-    self.assetStore = assetStore
   }
   
   // MARK: - public methods
@@ -32,18 +29,6 @@ class WeatherViewModel {
   
   @MainActor func fetchWeather(forCity city: String, state: String, country: String) {
     self.fetchWeatherAsync(forCity: city, state: state, country: country)
-  }
-  
-  
-  @MainActor func fetchAsset(urlString: String,
-                             completion: @escaping WeatherViewModelAssetCompletion) {
-    
-    guard let url = URL(string: urlString) else {
-      Log.error(TAG, "unable to form URL with string - \(urlString)")
-      return
-    }
-    
-    fetchAssetAsync(url: url, completion: completion)
   }
   
   // MARK: - private methods
@@ -82,28 +67,6 @@ class WeatherViewModel {
           DispatchQueue.main.async {
             self.weather = weatherModel
           }
-        }
-      }
-    }
-  }
-  
-  private func fetchAssetAsync(url: URL,
-                               completion: @escaping WeatherViewModelAssetCompletion) {
-    Log.verbose(TAG, #function)
-    // letting go of the main thread for I/O bound operations
-    DispatchQueue.global(qos: .userInteractive).async { [weak self] in
-      guard let self = self else {
-        Log.error(TAG, "self is nil")
-        return
-      }
-      self.assetStore.fetchAsset(url: url) { result in
-        switch(result) {
-        case .success(let asset):
-          DispatchQueue.main.async {
-            completion(asset.data)
-          }
-        case .failure(let error):
-          Log.error(TAG, error)
         }
       }
     }

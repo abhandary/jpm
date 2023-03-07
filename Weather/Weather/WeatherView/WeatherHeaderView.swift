@@ -8,13 +8,18 @@
 import SwiftUI
 
 struct WeatherHeaderView: View {
+  
+  @State var searchText: String
+  
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+      VStack {
+        Text(searchText)
+      }
     }
 }
 
 struct WeatherHeaderView_Previews: PreviewProvider {
     static var previews: some View {
-        WeatherHeaderView()
+      WeatherHeaderView(searchText: "London, UK")
     }
 }
