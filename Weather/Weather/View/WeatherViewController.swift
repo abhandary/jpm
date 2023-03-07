@@ -12,6 +12,7 @@ import SwiftUI
 class WeatherViewController: UIViewController {
   var cancellables: Set<AnyCancellable> = []
   
+  let searchBar: UISearchBar
   let tableView: UITableView!
   let headerView: UIHostingController<WeatherHeaderView>!
   let viewModel: WeatherViewModel!
@@ -20,6 +21,7 @@ class WeatherViewController: UIViewController {
     self.viewModel = viewModel
     self.tableView = UITableView()
     self.headerView = UIHostingController(rootView: WeatherHeaderView())
+    self.searchBar = UISearchBar()
     super.init(nibName: nil, bundle: nil)
   }
   
@@ -30,9 +32,28 @@ class WeatherViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    setupSearchBar()
     setupTableView()
     setupViewModel()
     NSLayoutConstraint.activate(staticConstraints())
+  }
+}
+
+// MARK: - UISearchBar setup and delegate
+extension WeatherViewController: UISearchBarDelegate {
+  private func setupSearchBar() {
+    self.searchBar.delegate = self
+    self.searchBar.translatesAutoresizingMaskIntoConstraints = false
+    self.searchBar.prompt = "Enter a movie name to search"
+    self.view.addSubview(searchBar)
+  }
+  
+  func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//    self.keyStroke = searchText
+  }
+  
+  func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+ //   self.keyStroke = ""
   }
 }
 

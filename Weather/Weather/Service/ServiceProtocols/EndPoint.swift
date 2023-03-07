@@ -12,5 +12,5 @@ import Foundation
 public protocol EndPoint {
   func path() -> String
   func request() ->  URLRequest?
-  func request(args: [String]) -> URLRequest?
+  func request(args: [CVarArg]) -> URLRequest?
 }

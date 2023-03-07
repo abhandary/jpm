@@ -10,6 +10,6 @@ import UIKit
 
 class WeatherSunTimesCell : UITableViewCell, WeatherCellProtocol {
   func setupCellWith(weatherModel: WeatherModel) {
-    
+    // @todo
   }
 }
