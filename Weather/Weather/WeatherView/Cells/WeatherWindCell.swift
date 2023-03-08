@@ -70,7 +70,7 @@ struct WeatherWindSwiftUIView_Previews: PreviewProvider {
 class WeatherWindCell : UITableViewCell, WeatherCellProtocol {
 
   let weatherWindSwiftUIView = WeatherWindSwiftUIView()
-  let hostingController = UIHostingController<WeatherDetailsSwiftUIView>(rootView: WeatherDetailsSwiftUIView())
+  var hostingController: UIHostingController<WeatherWindSwiftUIView>!
 
   func setupCellWith(weatherModel: WeatherModel) {
     weatherWindSwiftUIView.wind = weatherModel.wind
@@ -79,7 +79,8 @@ class WeatherWindCell : UITableViewCell, WeatherCellProtocol {
   override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
 
     super.init(style: style, reuseIdentifier: reuseIdentifier)
-
+    hostingController = UIHostingController<WeatherWindSwiftUIView>(rootView: weatherWindSwiftUIView)
+    hostingController.view.translatesAutoresizingMaskIntoConstraints = false
     self.contentView.addSubview(hostingController.view)
     NSLayoutConstraint.activate(staticConstraints())
   }
@@ -88,7 +89,11 @@ class WeatherWindCell : UITableViewCell, WeatherCellProtocol {
     fatalError("init(coder:) has not been implemented")
   }
   
-
+  override func layoutSubviews() {
+      super.layoutSubviews()
+      contentView.frame = contentView.frame.inset(by: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10))
+  }
+  
   private func staticConstraints() -> [NSLayoutConstraint] {
     var constraints: [NSLayoutConstraint] = []
     

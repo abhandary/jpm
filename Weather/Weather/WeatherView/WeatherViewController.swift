@@ -9,7 +9,12 @@ import UIKit
 import Combine
 import SwiftUI
 
+private let TAG = "WeatherViewController"
+
 class WeatherViewController: UIViewController {
+  
+  private let cellSpacingHeight = 10.0
+  
   var cancellables: Set<AnyCancellable> = []
   
   let textBinding: TextLimitBinding = TextLimitBinding()
@@ -36,7 +41,7 @@ class WeatherViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-
+    
     view.backgroundColor = .white
     
     setupSearchBar()
@@ -62,8 +67,9 @@ extension WeatherViewController: UISearchBarDelegate {
   }
   
   func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-    print(self.keyStroke)
-    print(self.textBinding.text)
+    Log.verbose(TAG, "city: \(self.keyStroke)")
+    Log.verbose(TAG, "state: \(self.textBinding.text)")
+    self.viewModel.fetchWeather(forCity: self.keyStroke, state: self.textBinding.text, country: "USA")
   }
   
   func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -80,12 +86,14 @@ extension WeatherViewController {
 }
 
 // MARK: - UITableView setup and data source
-extension WeatherViewController: UITableViewDataSource {
+extension WeatherViewController: UITableViewDataSource, UITableViewDelegate {
   
   private func setupTableView() {
     self.tableView.dataSource = self
-    self.tableView.register(WeatherSummaryCell.self,
-                            forCellReuseIdentifier: WeatherSummaryCell.cellReuseIdentifier)
+    self.tableView.delegate = self
+    for value in WeatherViewController.rowToCellMapping.values {
+      self.tableView.register(value, forCellReuseIdentifier: value.cellReuseIdentifier)
+    }
     self.tableView.rowHeight = UITableView.automaticDimension
     self.tableView.translatesAutoresizingMaskIntoConstraints = false
     self.view.addSubview(self.tableView)
@@ -95,28 +103,62 @@ extension WeatherViewController: UITableViewDataSource {
                                              for: .valueChanged)
   }
   
+  func numberOfSections(in tableView: UITableView) -> Int {
+    if viewModel.weather == nil {
+      return 0
+    }
+    return WeatherViewController.rowToCellMapping.keys.count
+  }
+  
+  // Set the spacing between sections
+  func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    return self.cellSpacingHeight
+  }
+  
+  // Make the background color show through
+  func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    let headerView = UIView()
+    headerView.backgroundColor = UIColor.clear
+    return headerView
+  }
+  
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     if viewModel.weather == nil {
       return 0
     }
-    
-    return WeatherViewController.NUMBER_OF_WEATHER_DATA_CELLS
+    return 1
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     guard let weather = viewModel.weather else {
       fatalError("expecting a valid weather model")
     }
-    guard let cellType = WeatherViewController.rowToCellMapping[indexPath.row] else {
-      fatalError("unable to get a valid cell type for - \(indexPath)")
+
+    guard let cellType = WeatherViewController.rowToCellMapping[indexPath.section] else {
+      fatalError("unable to dequeue get a cell type for - \(indexPath)")
     }
+    
     guard let cell = self.tableView.dequeueReusableCell(withIdentifier: cellType.cellReuseIdentifier) else {
-      fatalError("unable to dequeue a cell of type \(cellType) for index path - \(indexPath)")
+      fatalError("unable to dequeue a cell of type for index path - \(indexPath)")
     }
-    if let weatherCell = cell as? WeatherCellProtocol {
-      weatherCell.setupCellWith(weatherModel: weather)
+    cell.contentView.backgroundColor = UIColor.white
+    cell.contentView.layer.borderColor = UIColor.black.cgColor
+    cell.contentView.layer.borderWidth = 1
+    cell.contentView.layer.cornerRadius = 8
+    cell.contentView.clipsToBounds = true
+    
+    if let cellCard = cell as? WeatherCellProtocol {
+      cellCard.setupCellWith(weatherModel: weather)
     }
+
     return cell
+  }
+  
+  private func updateUI(forCell cell: UITableViewCell) {
+    cell.contentView.layer.cornerRadius = 10.0
+    cell.contentView.layer.borderColor = UIColor.black.cgColor
+    cell.contentView.layer.borderWidth = 1.0
+    cell.contentView.clipsToBounds = true
   }
   
   @objc func handleRefreshControl() {

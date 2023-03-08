@@ -26,14 +26,14 @@ struct Main: Codable {
     let tempMax: Double
     let pressure: Int
     let humidity: Int
-    let seaLevel: Int
-    let grndLevel: Int
+    let seaLevel: Int?
+    let grndLevel: Int?
 }
 
 struct Wind: Codable {
     let speed: Double
     let deg: Int
-    let gust: Int
+    let gust: Double?
 }
 
 struct Rain: Codable {

@@ -44,6 +44,11 @@ class WeatherTemperatureCell : UITableViewCell, WeatherCellProtocol {
     fatalError("init(coder:) has not been implemented")
   }
   
+  override func layoutSubviews() {
+      super.layoutSubviews()
+      contentView.frame = contentView.frame.inset(by: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10))
+  }
+  
   private func staticConstraints() -> [NSLayoutConstraint] {
     var constraints: [NSLayoutConstraint] = []
     
@@ -59,7 +64,8 @@ class WeatherTemperatureCell : UITableViewCell, WeatherCellProtocol {
       
       currentTemperatureLabel.topAnchor.constraint(equalTo: self.maxTemperatureLabel.bottomAnchor, constant: 10),
       currentTemperatureLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 10),
-      minTemperatureLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -10),
+      currentTemperatureLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -10),
+      currentTemperatureLabel.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -10),
     ])
     return constraints
   }

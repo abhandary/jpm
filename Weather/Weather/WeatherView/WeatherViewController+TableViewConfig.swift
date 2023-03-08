@@ -13,7 +13,7 @@ import UIKit
 extension WeatherViewController {
   static let NUMBER_OF_WEATHER_DATA_CELLS = 6
 
-  static let rowToCellMapping: [Int:WeatherCellProtocol.Type] = [
+  static let rowToCellMapping: [Int: UITableViewCell.Type] = [
     0 : WeatherSummaryCell.self,
     1 : WeatherTemperatureCell.self,
     2 : WeatherDetailsCell.self,

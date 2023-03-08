@@ -74,7 +74,7 @@ struct WindModel {
   static func from(weatherResponse: WeatherResponse) -> WindModel {
     WindModel(speed: Int(weatherResponse.wind.speed),
               direction: WindDirection.from(degrees: weatherResponse.wind.deg),
-              gust: weatherResponse.wind.gust)
+              gust: Int(weatherResponse.wind.gust ?? 0.0))
   }
 }
 

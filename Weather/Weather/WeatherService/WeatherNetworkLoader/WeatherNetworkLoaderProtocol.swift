@@ -18,17 +18,12 @@ typealias WeatherNetworkLoaderCompletionResponse = (Result<WeatherResponse, Weat
 
 protocol WeatherNetworkLoaderProtocol {
   
-  // city
-  func query(forCity city: String, completion: @escaping WeatherNetworkLoaderCompletionResponse)
-  
-  // city & country
-  func query(forCity city: String,
-             country: String,
-             completion: @escaping WeatherNetworkLoaderCompletionResponse)
-  
-  // city, state and country
+  // geo coding query
   func query(forCity city: String,
              state: String,
              country: String,
              completion: @escaping WeatherNetworkLoaderCompletionResponse)
+  
+  // geo co-ordinates query
+  func query(forLat lat: Double, lon: Double, completion: @escaping WeatherNetworkLoaderCompletionResponse)
 }

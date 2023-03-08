@@ -9,28 +9,29 @@ import Foundation
 
 private let TAG = "WeatherNetworkLoader"
 
+enum WeatherAPIParams : String {
+  case city = "{city}"
+  case state = "{state}"
+  case country = "{country}"
+  case lat = "{lat}"
+  case lon = "{lon}"
+}
+
 enum WeatherAPI {
-  case city
-  case cityWithCountry
-  case cityWithStateAndCountry
+  case geoCoding
   case geoCoordinates
   
-  static let baseGeocodingURL = "https://api.openweathermap.org/data/2.5/weather?q="
-  static let baseGeocoordinatesURL = "https://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s"
+  static let baseURL = "https://api.openweathermap.org/data/2.5/weather?"
   static let apiKey = "3f35a564a722135d492c56eb1e2a2f85"
 }
 
 extension WeatherAPI: EndPoint {
   func path() -> String {
     switch self {
-    case .city:
-      return "\(WeatherAPI.baseGeocodingURL)%s&appid=\(WeatherAPI.apiKey)"
-    case .cityWithCountry:
-      return "\(WeatherAPI.baseGeocodingURL)$s,%s&appid=\(WeatherAPI.apiKey)"
-    case .cityWithStateAndCountry:
-      return "\(WeatherAPI.baseGeocodingURL)%s,%s,%s&appid=\(WeatherAPI.apiKey)"
+    case .geoCoding:
+      return "\(WeatherAPI.baseURL)q=\(WeatherAPIParams.city.rawValue),\(WeatherAPIParams.state.rawValue),\(WeatherAPIParams.country.rawValue)&appid=\(WeatherAPI.apiKey)&units=imperial"
     case .geoCoordinates:
-      return "\(WeatherAPI.baseGeocoordinatesURL)&appid=\(WeatherAPI.apiKey)"
+      return "\(WeatherAPI.baseURL)lat=\(WeatherAPIParams.lat.rawValue)&lon=\(WeatherAPIParams.lon.rawValue)&appid=\(WeatherAPI.apiKey)&units=imperial"
     }
   }
   
@@ -39,9 +40,21 @@ extension WeatherAPI: EndPoint {
     return URLRequest(url: url)
   }
   
-  func request(args: [CVarArg]) -> URLRequest? {
-    let endPoint = String(format: path(), arguments: args)
-    guard let url = URL(string: endPoint) else { return nil }
+  func request(args: [String:String]) -> URLRequest? {
+    var endPoint = path()
+    for key in args.keys {
+      guard let value = args[key] else { continue }
+      guard let value = value.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+        Log.error(TAG, "unable to escape value - \(value)")
+        return nil
+      }
+      endPoint = endPoint.replacingOccurrences(of: key, with: value)
+    }
+    
+    guard let url = URL(string: endPoint) else {
+      Log.error(TAG, "unable to form URL")
+      return nil
+    }
     return URLRequest(url: url)
   }
 }
@@ -58,33 +71,17 @@ struct WeatherNetworkLoader: WeatherNetworkLoaderProtocol {
   }
   
   // MARK: - public methods
-  func query(forCity city: String, completion: @escaping WeatherNetworkLoaderCompletionResponse) {
-    guard let endPoint = WeatherAPI.city.request(args: [city]) else {
-      completion(.failure(.badURL))
-      return
-    }
-    Log.verbose(TAG, "querying weather with endpoint - \(endPoint)")
-    
-    queryAndDecode(forEndPoint: endPoint, completion: completion)
-  }
-
-  func query(forCity city: String,
-             country: String,
-             completion: @escaping WeatherNetworkLoaderCompletionResponse) {
-    guard let endPoint = WeatherAPI.cityWithCountry.request(args: [city, country]) else {
-      completion(.failure(.badURL))
-      return
-    }
-    Log.verbose(TAG, "querying weather with endpoint - \(endPoint)")
-    
-    queryAndDecode(forEndPoint: endPoint, completion: completion)
-  }
   
   func query(forCity city: String,
              state: String,
              country: String,
              completion: @escaping WeatherNetworkLoaderCompletionResponse) {
-    guard let endPoint = WeatherAPI.cityWithStateAndCountry.request(args: [city, state, country]) else {
+    let params = [
+      WeatherAPIParams.city.rawValue : city,
+      WeatherAPIParams.state.rawValue : state,
+      WeatherAPIParams.country.rawValue : country
+    ]
+    guard let endPoint = WeatherAPI.geoCoding.request(args: params) else {
       completion(.failure(.badURL))
       return
     }
@@ -94,7 +91,11 @@ struct WeatherNetworkLoader: WeatherNetworkLoaderProtocol {
   }
   
   func query(forLat lat: Double, lon: Double, completion: @escaping WeatherNetworkLoaderCompletionResponse) {
-    guard let endPoint = WeatherAPI.geoCoordinates.request(args: [lat, lon]) else {
+    let params = [
+      WeatherAPIParams.lat.rawValue : String(lat),
+      WeatherAPIParams.lon.rawValue : String(lon),
+    ]
+    guard let endPoint = WeatherAPI.geoCoordinates.request(args: params) else {
       completion(.failure(.badURL))
       return
     }
