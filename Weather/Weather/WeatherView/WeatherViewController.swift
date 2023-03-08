@@ -61,9 +61,9 @@ extension WeatherViewController  {
   func setupSearchButton() {
     self.subSearchViewBinding.$searchPressed
       .receive(on: RunLoop.main)
-      .sink { weather in
-        if self.subSearchViewBinding.searchPressed {
-          self.searchButtonPressed()
+      .sink { [weak self] weather in
+        if self?.subSearchViewBinding.searchPressed == true {
+          self?.searchButtonPressed()
         }
       }.store(in: &cancellables)
   }
@@ -81,12 +81,16 @@ extension WeatherViewController  {
   func setupLocationButton() {
     self.subSearchViewBinding.$locationPressed
       .receive(on: RunLoop.main)
-      .sink { weather in self.locationButtonPressed()
+      .sink { [weak self] weather in
+        if self?.subSearchViewBinding.locationPressed == true {
+          self?.locationButtonPressed()
+        }
       }.store(in: &cancellables)
   }
   
   func locationButtonPressed() {
-    print("location button pressed")
+    Log.verbose(TAG, "location button pressed")
+    self.viewModel.fetchGeoLocationWeather()
   }
 }
 
@@ -229,6 +233,7 @@ extension WeatherViewController {
   
   private func weatherUpdated() {
     updateHeaderView()
+    self.tableView.refreshControl?.endRefreshing()
     self.tableView.reloadData()
   }
 }

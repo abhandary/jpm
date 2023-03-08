@@ -14,6 +14,17 @@ enum WeatherRepositoryError: Error {
   case networkDecodingError
 }
 
+struct WeatherGeoCoordinatesParams : Codable {
+  let lat: Double
+  let lon: Double
+}
+
+struct WeatherGeocodingSearchParams : Codable {
+  let city: String
+  let state: String
+  let country: String
+}
+
 typealias WeatherRepositoryCompletionResponse = (Result<WeatherResponse, WeatherRepositoryError>) -> Void
 
 protocol WeatherRepositoryProtocol {
@@ -22,8 +33,10 @@ protocol WeatherRepositoryProtocol {
   func loadLastSearch(completion: @escaping WeatherRepositoryCompletionResponse)
   
   // city, state and country
-  func fetchWeather(forCity city: String,
-             state: String,
-             country: String,
+  func fetchWeather(searchParams: WeatherGeocodingSearchParams,
+             completion: @escaping WeatherRepositoryCompletionResponse)
+  
+  // geo coordinates search
+  func fetchWeather(searchParams: WeatherGeoCoordinatesParams,
              completion: @escaping WeatherRepositoryCompletionResponse)
 }

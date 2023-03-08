@@ -12,7 +12,9 @@ private let TAG = "WeatherStorageLoader"
 
 struct WeatherStorageLoader : WeatherStorageLoaderProtocol {
   
-  private let lastSearchResponseFile = "lastSearchResponseFile"
+  private static let lastSearchResponseFile = "lastSearchResponseFile"
+  private static let lastSearchParams = "lastSearchParamsFile"
+  
   private let fileManager: FileManagerProtocol
   private let encoder: EncoderProtocol
   private let decoder: DecoderProtocol
@@ -28,16 +30,38 @@ struct WeatherStorageLoader : WeatherStorageLoaderProtocol {
   // MARK: - public methods
   
   func isLastSearchWeatherResponseStored() -> Bool {
-    guard let fileURL = getWeatherLastSearchFileURL() else {
+    guard let fileURL = getWeatherFileURL(fileName:WeatherStorageLoader.lastSearchResponseFile) else {
       Log.error(TAG, "unable to get last search weather response file URL")
       return false
     }
     return self.fileManager.fileExists(atPath: fileURL.path)
   }
   
-  func getStoredLastSearchWeatherRespons() -> Result<WeatherResponse, WeatherStorageError> {
+ 
+  func getStoredLastSearchWeatherSearchParams() -> Result<WeatherSearchParams, WeatherStorageError> {
+    guard let fileURL = getWeatherFileURL(fileName: WeatherStorageLoader.lastSearchParams) else {
+      Log.error(TAG, "unable to get last search weather response file URL")
+      return .failure(.fileURLError)
+    }
     
-    guard let fileURL = getWeatherLastSearchFileURL() else {
+    if self.fileManager.fileExists(atPath: fileURL.path) == false {
+      Log.verbose(TAG, "No file stored for file URL - \(fileURL)")
+      return .failure(.fileMissingError)
+    }
+    if let savedData = self.fileManager.contents(atPath: fileURL.path) {
+      guard let searchParams = self.decoder.decode(type: WeatherSearchParams.self, from: savedData) else {
+        return .failure(.fileDecodingError)
+      }
+      return .success(searchParams)
+    } else {
+      Log.error(TAG, "error reading contents of file at path \(fileURL.path)")
+      return .failure(.fileReadError)
+    }
+  }
+  
+  func getStoredLastSearchWeatherResponse() -> Result<WeatherResponse, WeatherStorageError> {
+    
+    guard let fileURL = getWeatherFileURL(fileName: WeatherStorageLoader.lastSearchResponseFile) else {
       Log.error(TAG, "unable to get last search weather response file URL")
       return .failure(.fileURLError)
     }
@@ -57,9 +81,28 @@ struct WeatherStorageLoader : WeatherStorageLoaderProtocol {
     }
   }
   
+  func storeLastSearch(params: WeatherSearchParams) {
+    guard let fileURL = getWeatherFileURL(fileName: WeatherStorageLoader.lastSearchParams) else {
+      Log.error(TAG, "unable to get last search weather response file URL")
+      return
+    }
+    
+    guard let encodedData = self.encoder.encode(params) else {
+      Log.error(TAG, "unable to encode weather response")
+      return
+    }
+    
+    do {
+      try encodedData.write(to: fileURL)
+      Log.verbose(TAG, "Succesfully wrote to \(fileURL)")
+    } catch {
+      Log.error(TAG, error)
+    }
+  }
+  
   func storeLastSearch(weatherResponse: WeatherResponse)  {
     
-    guard let fileURL = getWeatherLastSearchFileURL() else {
+    guard let fileURL = getWeatherFileURL(fileName: WeatherStorageLoader.lastSearchResponseFile) else {
       Log.error(TAG, "unable to get last search weather response file URL")
       return
     }
@@ -79,7 +122,7 @@ struct WeatherStorageLoader : WeatherStorageLoaderProtocol {
   
   // MARK: - private methods
   
-  private func getWeatherLastSearchFileURL() -> URL? {
+  private func getWeatherFileURL(fileName: String) -> URL? {
     let fileURLs = self.fileManager.urls(for: .documentDirectory, in: .userDomainMask)
     guard fileURLs.count > 0 else {
       Log.error(TAG, "unable to get docments directory")
@@ -89,7 +132,7 @@ struct WeatherStorageLoader : WeatherStorageLoaderProtocol {
       Log.error(TAG, "nil directory URL")
       return nil
     }
-    let hashString = SHA256.hash(data:Data(lastSearchResponseFile.utf8)).compactMap { String(format: "%02x", $0) }.joined()
+    let hashString = SHA256.hash(data:Data(fileName.utf8)).compactMap { String(format: "%02x", $0) }.joined()
     return URL(string: "\(directoryURL.absoluteString)\(hashString)")
   }
   
