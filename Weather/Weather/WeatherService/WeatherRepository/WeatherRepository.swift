@@ -43,6 +43,10 @@ struct WeatherRepository : WeatherRepositoryProtocol {
           self.fetchWeather(searchParams: geocoding, completion: completion)
           return
         }
+        if let geocoordinates = params.geoCoordinates {
+          self.fetchWeather(searchParams: geocoordinates, completion: completion)
+          return
+        }
       case .failure(let error):
         Log.error(TAG, error)
       }
