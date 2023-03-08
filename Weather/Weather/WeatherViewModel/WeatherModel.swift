@@ -117,6 +117,7 @@ struct WeatherModel {
   let wind: WindModel
   let precipitation: WeatherPrecipitation?
   let sun: WeatherSunTimes
+  let dateTime: Date
   
   static func from(weatherResponse: WeatherResponse) -> WeatherModel {
     WeatherModel(cityName: weatherResponse.cityName,
@@ -125,6 +126,7 @@ struct WeatherModel {
                  details: WeatherDetails.from(weatherResponse: weatherResponse),
                  wind: WindModel.from(weatherResponse: weatherResponse),
                  precipitation: WeatherPrecipitation.from(weatherResponse: weatherResponse),
-                 sun: WeatherSunTimes.from(weatherResponse: weatherResponse))
+                 sun: WeatherSunTimes.from(weatherResponse: weatherResponse),
+                 dateTime: Date(timeIntervalSince1970: Double(weatherResponse.dt)))
   }
 }

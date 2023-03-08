@@ -7,19 +7,29 @@
 
 import SwiftUI
 
+class WeatherHeaderViewBinding: ObservableObject {
+  @Published var text: String = ""
+}
+
 struct WeatherHeaderView: View {
   
-  @State var searchText: String
+  @ObservedObject var state: WeatherHeaderViewBinding
   
-    var body: some View {
-      VStack {
-        Text(searchText)
-      }
+  var body: some View {
+    VStack {
+      Divider()
+      Text(state.text)
+        .font(.bold(.title2)())
+      Divider()
     }
+    .padding(.bottom, 20.0)
+    .padding(.top, 10.0)
+  }
 }
 
 struct WeatherHeaderView_Previews: PreviewProvider {
-    static var previews: some View {
-      WeatherHeaderView(searchText: "London, UK")
-    }
+  static var previews: some View {
+    
+    WeatherHeaderView(state: WeatherHeaderViewBinding())
+  }
 }

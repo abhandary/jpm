@@ -18,6 +18,7 @@ class WeatherViewController: UIViewController {
   var cancellables: Set<AnyCancellable> = []
   
   let subSearchViewBinding: WeatherSubSearchViewBinding = WeatherSubSearchViewBinding()
+  let headerViewBinding: WeatherHeaderViewBinding = WeatherHeaderViewBinding()
   let searchBar: UISearchBar
   let tableView: UITableView
   let headerView: UIHostingController<WeatherHeaderView>
@@ -29,7 +30,7 @@ class WeatherViewController: UIViewController {
   init(viewModel: WeatherViewModel) {
     self.viewModel = viewModel
     self.tableView = UITableView()
-    self.headerView = UIHostingController(rootView: WeatherHeaderView(searchText:""))
+    self.headerView = UIHostingController(rootView: WeatherHeaderView(state: headerViewBinding))
     self.subSearchView = UIHostingController(rootView: WeatherSubSearchView(state: subSearchViewBinding))
     self.searchBar = UISearchBar()
     super.init(nibName: nil, bundle: nil)
@@ -60,14 +61,18 @@ extension WeatherViewController  {
   func setupSearchButton() {
     self.subSearchViewBinding.$searchPressed
       .receive(on: RunLoop.main)
-      .sink { weather in self.searchButtonPressed()
+      .sink { weather in
+        if self.subSearchViewBinding.searchPressed {
+          self.searchButtonPressed()
+        }
       }.store(in: &cancellables)
   }
   
   func searchButtonPressed() {
     Log.verbose(TAG, "city: \(self.keyStroke)")
     Log.verbose(TAG, "state: \(self.subSearchViewBinding.text)")
-    self.viewModel.fetchWeather(forCity: self.keyStroke, state: self.subSearchViewBinding.text, country: "USA")
+    let city = self.keyStroke != "" ? self.keyStroke : "New York"
+    self.viewModel.fetchWeather(forCity: city, state: self.subSearchViewBinding.text, country: "USA")
   }
 }
 
@@ -99,9 +104,7 @@ extension WeatherViewController: UISearchBarDelegate {
   }
   
   func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-    Log.verbose(TAG, "city: \(self.keyStroke)")
-    Log.verbose(TAG, "state: \(self.subSearchViewBinding.text)")
-    self.viewModel.fetchWeather(forCity: self.keyStroke, state: self.subSearchViewBinding.text, country: "USA")
+    searchButtonPressed()
   }
   
   func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -204,6 +207,13 @@ extension WeatherViewController {
     self.headerView.view.translatesAutoresizingMaskIntoConstraints = false
     self.view.addSubview(self.headerView.view)
   }
+  
+  func updateHeaderView() {
+    if let cityName = self.viewModel.weather?.cityName,
+       let dateTime = self.viewModel.weather?.dateTime {
+      self.headerViewBinding.text = "\(cityName) \(dateTime.formatted())"
+    }
+  }
 }
 
 // MARK: - view model
@@ -218,6 +228,7 @@ extension WeatherViewController {
   }
   
   private func weatherUpdated() {
+    updateHeaderView()
     self.tableView.reloadData()
   }
 }
@@ -240,11 +251,11 @@ extension WeatherViewController {
       subSearchView.view.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
       subSearchView.view.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
       
-      headerView.view.topAnchor.constraint(equalTo: subSearchView.view.bottomAnchor),
+      headerView.view.topAnchor.constraint(equalTo: subSearchView.view.bottomAnchor, constant: 20.0),
       headerView.view.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
       headerView.view.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
       
-      tableView.topAnchor.constraint(equalTo: headerView.view.topAnchor),
+      tableView.topAnchor.constraint(equalTo: headerView.view.bottomAnchor),
       tableView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
       tableView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
       tableView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
