@@ -26,9 +26,12 @@ struct WeatherWindSwiftUIView: View {
 
     var body: some View {
       VStack {
+        Spacer()
+          .frame(height: 5.0)
         HStack {
           Text("Wind")
             .padding(.leading, 10)
+            .font(.title2)
           Spacer()
         }
         Divider()
@@ -36,9 +39,9 @@ struct WeatherWindSwiftUIView: View {
           .background(Color.black)
           .frame(height: 1)
         HStack {
-          Image(systemName: "windmill")
+          Image("windmills")
             .padding(.leading, 10)
-            .frame(width: 100)
+            .frame(width: 70, height:70)
           VStack {
             Text("\(wind.speed) \(wind.direction.rawValue)")
               .padding(.leading, 10)
@@ -46,7 +49,7 @@ struct WeatherWindSwiftUIView: View {
             Divider()
             HStack {
               Spacer()
-              Image(systemName: "gust")
+              Image("gust")
               Text("\(wind.gust)")
                 .padding(.trailing, 10)
                 .font(.subheadline)

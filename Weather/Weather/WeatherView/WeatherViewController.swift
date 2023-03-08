@@ -17,11 +17,11 @@ class WeatherViewController: UIViewController {
   
   var cancellables: Set<AnyCancellable> = []
   
-  let textBinding: TextLimitBinding = TextLimitBinding()
+  let subSearchViewBinding: WeatherSubSearchViewBinding = WeatherSubSearchViewBinding()
   let searchBar: UISearchBar
   let tableView: UITableView
   let headerView: UIHostingController<WeatherHeaderView>
-  let stateView: UIHostingController<WeatherStateView>
+  let subSearchView: UIHostingController<WeatherSubSearchView>
   let viewModel: WeatherViewModel
   
   var keyStroke: String = ""
@@ -30,7 +30,7 @@ class WeatherViewController: UIViewController {
     self.viewModel = viewModel
     self.tableView = UITableView()
     self.headerView = UIHostingController(rootView: WeatherHeaderView(searchText:""))
-    self.stateView = UIHostingController(rootView: WeatherStateView(state: textBinding))
+    self.subSearchView = UIHostingController(rootView: WeatherSubSearchView(state: subSearchViewBinding))
     self.searchBar = UISearchBar()
     super.init(nibName: nil, bundle: nil)
   }
@@ -43,13 +43,45 @@ class WeatherViewController: UIViewController {
     super.viewDidLoad()
     
     view.backgroundColor = .white
-    
+
     setupSearchBar()
-    setupStateView()
+    setupSubSearchView()
+    setupLocationButton()
+    setupSearchButton()
     setupHeaderView()
     setupTableView()
     setupViewModel()
     NSLayoutConstraint.activate(staticConstraints())
+  }
+}
+
+// MARK: - Search button
+extension WeatherViewController  {
+  func setupSearchButton() {
+    self.subSearchViewBinding.$searchPressed
+      .receive(on: RunLoop.main)
+      .sink { weather in self.searchButtonPressed()
+      }.store(in: &cancellables)
+  }
+  
+  func searchButtonPressed() {
+    Log.verbose(TAG, "city: \(self.keyStroke)")
+    Log.verbose(TAG, "state: \(self.subSearchViewBinding.text)")
+    self.viewModel.fetchWeather(forCity: self.keyStroke, state: self.subSearchViewBinding.text, country: "USA")
+  }
+}
+
+// MARK: - Location button {
+extension WeatherViewController  {
+  func setupLocationButton() {
+    self.subSearchViewBinding.$locationPressed
+      .receive(on: RunLoop.main)
+      .sink { weather in self.locationButtonPressed()
+      }.store(in: &cancellables)
+  }
+  
+  func locationButtonPressed() {
+    print("location button pressed")
   }
 }
 
@@ -68,8 +100,8 @@ extension WeatherViewController: UISearchBarDelegate {
   
   func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
     Log.verbose(TAG, "city: \(self.keyStroke)")
-    Log.verbose(TAG, "state: \(self.textBinding.text)")
-    self.viewModel.fetchWeather(forCity: self.keyStroke, state: self.textBinding.text, country: "USA")
+    Log.verbose(TAG, "state: \(self.subSearchViewBinding.text)")
+    self.viewModel.fetchWeather(forCity: self.keyStroke, state: self.subSearchViewBinding.text, country: "USA")
   }
   
   func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -79,9 +111,9 @@ extension WeatherViewController: UISearchBarDelegate {
 
 // MARK: - state view
 extension WeatherViewController {
-  func setupStateView() {
-    self.stateView.view.translatesAutoresizingMaskIntoConstraints = false
-    self.view.addSubview(self.stateView.view)
+  func setupSubSearchView() {
+    self.subSearchView.view.translatesAutoresizingMaskIntoConstraints = false
+    self.view.addSubview(self.subSearchView.view)
   }
 }
 
@@ -204,11 +236,11 @@ extension WeatherViewController {
       searchBar.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
       searchBar.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
       
-      stateView.view.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
-      stateView.view.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
-      stateView.view.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+      subSearchView.view.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
+      subSearchView.view.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+      subSearchView.view.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
       
-      headerView.view.topAnchor.constraint(equalTo: stateView.view.bottomAnchor),
+      headerView.view.topAnchor.constraint(equalTo: subSearchView.view.bottomAnchor),
       headerView.view.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
       headerView.view.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
       

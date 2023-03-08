@@ -38,6 +38,8 @@ struct WeatherDetailsSwiftUIView: View {
   
   var body: some View {
     VStack {
+      Spacer()
+        .frame(height: 5.0)
       HStack {
         Text("Details")
           .padding(.leading, 10)
@@ -53,7 +55,7 @@ struct WeatherDetailsSwiftUIView: View {
           .padding(.leading, 10)
           .font(.subheadline)
         Spacer()
-        Text("\(model.details.feelsLike)")
+        Text("\(model.details.feelsLike)°")
           .padding(.trailing, 10)
           .font(.subheadline)
       }
@@ -63,7 +65,7 @@ struct WeatherDetailsSwiftUIView: View {
           .padding(.leading, 10)
           .font(.subheadline)
         Spacer()
-        Text("\(model.details.humidity)")
+        Text("\(model.details.humidity)%")
           .padding(.trailing, 10)
           .font(.subheadline)
       }
@@ -73,7 +75,7 @@ struct WeatherDetailsSwiftUIView: View {
           .padding(.leading, 10)
           .font(.subheadline)
         Spacer()
-        Text("\(model.details.pressure)")
+        Text("\(model.details.pressure) hPA")
           .padding(.trailing, 10)
           .font(.subheadline)
       }

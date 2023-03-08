@@ -12,12 +12,13 @@ struct WeatherSummary {
   let conditionDescription: String
   let conditionIcon: URL?
   
-  private static let iconURL = " http://openweathermap.org/img/wn/%s@2x.png"
+  private static let iconURL = "https://openweathermap.org/img/wn/"
   
   static func from(weatherResponse: WeatherResponse) -> WeatherSummary? {
     var summary: WeatherSummary? = nil
     if let weather = weatherResponse.weather.first {
-      let url = URL(string: String(format: WeatherSummary.iconURL, [weather.icon]))
+      let urlString = iconURL + weather.icon + "@2x.png"
+      let url = URL(string: urlString)
       summary = WeatherSummary(condition: weather.main,
                                conditionDescription: weather.weatherDescription,
                                conditionIcon: url)

@@ -58,10 +58,10 @@ class WeatherSummaryCell : UITableViewCell, WeatherCellProtocol {
     
     // setup header view and table view contraints
     constraints.append(contentsOf:[ 
-      weatherIconImageView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10),
-      weatherIconImageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 10),
+      weatherIconImageView.topAnchor.constraint(equalTo: self.contentView.topAnchor),
+      weatherIconImageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
       weatherIconImageView.widthAnchor.constraint(equalToConstant: 50),
-      weatherIconImageView.heightAnchor.constraint(equalToConstant: 50),
+      weatherIconImageView.widthAnchor.constraint(equalTo: weatherIconImageView.heightAnchor),
       
       weatherConditionLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10),
       weatherConditionLabel.leadingAnchor.constraint(equalTo: weatherIconImageView.trailingAnchor, constant: 10),

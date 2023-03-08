@@ -11,14 +11,12 @@ import UIKit
 // placed in a seperate file to minimize changes to the main ViewController file.
 // Ideally as new cells are added or updated, only this file would need to change.
 extension WeatherViewController {
-  static let NUMBER_OF_WEATHER_DATA_CELLS = 6
-
   static let rowToCellMapping: [Int: UITableViewCell.Type] = [
     0 : WeatherSummaryCell.self,
     1 : WeatherTemperatureCell.self,
     2 : WeatherDetailsCell.self,
     3 : WeatherWindCell.self,
-    4 : WeatherPrecipitationCell.self,
-    5 : WeatherSunTimesCell.self,
+    4 : WeatherSunTimesCell.self,
+    // @todo: 5 : WeatherPrecipitationCell.self,
   ]
 }
