@@ -14,10 +14,7 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## To run
 
-* Run directly from XCode, doesn't require any pods.
-
-## Assumptions in the code.
-* That the UI layout can be stacked vertically, the currently layout enginge works for simple vertically stacked layouts, but will not scale to more complex layouts that need a combination of horizontal and vertical stacks.
+* Run directly from XCode, doesn't need pods
 
 ## Focus Areas and problems I was looking to solve
 
