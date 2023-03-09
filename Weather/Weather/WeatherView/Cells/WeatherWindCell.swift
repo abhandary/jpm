@@ -20,67 +20,75 @@ import SwiftUI
 
 private let placeHolderWeatherWind = WindModel(speed: 10, direction: .north, gust: 10)
 
+class WeatherWindSwiftUIViewState : ObservableObject {
+  @Published var wind: WindModel
+  
+  init(wind: WindModel) {
+    self.wind = wind
+  }
+}
+
 struct WeatherWindSwiftUIView: View {
   
-  @State var wind: WindModel = placeHolderWeatherWind
-
-    var body: some View {
-      VStack {
+  @ObservedObject var state: WeatherWindSwiftUIViewState
+  
+  var body: some View {
+    VStack {
+      Spacer()
+        .frame(height: 5.0)
+      HStack {
+        Text("Wind")
+          .padding(.leading, 10)
+          .font(.title2)
         Spacer()
-          .frame(height: 5.0)
-        HStack {
-          Text("Wind")
+      }
+      Divider()
+        .padding(.horizontal, 10)
+        .background(Color.black)
+        .frame(height: 1)
+      HStack {
+        Image("windmills")
+          .padding(.leading, 10)
+          .frame(width: 70, height:70)
+        VStack {
+          Text("\(state.wind.speed) \(state.wind.direction.rawValue)")
             .padding(.leading, 10)
-            .font(.title2)
-          Spacer()
-        }
-        Divider()
-          .padding(.horizontal, 10)
-          .background(Color.black)
-          .frame(height: 1)
-        HStack {
-          Image("windmills")
-            .padding(.leading, 10)
-            .frame(width: 70, height:70)
-          VStack {
-            Text("\(wind.speed) \(wind.direction.rawValue)")
-              .padding(.leading, 10)
+            .font(.subheadline)
+          Divider()
+          HStack {
+            Spacer()
+            Image("gust")
+            Text("\(state.wind.gust)")
+              .padding(.trailing, 10)
               .font(.subheadline)
-            Divider()
-            HStack {
-              Spacer()
-              Image("gust")
-              Text("\(wind.gust)")
-                .padding(.trailing, 10)
-                .font(.subheadline)
-            }
-            
           }
-
+          
         }
+        
       }
     }
-
+  }
+  
 }
 
 struct WeatherWindSwiftUIView_Previews: PreviewProvider {
-    static var previews: some View {
-      WeatherWindSwiftUIView()
-    }
+  static var previews: some View {
+    WeatherWindSwiftUIView(state: WeatherWindSwiftUIViewState(wind: placeHolderWeatherWind))
+  }
 }
 
 
 class WeatherWindCell : UITableViewCell, WeatherCellProtocol {
-
-  let weatherWindSwiftUIView = WeatherWindSwiftUIView()
+  
+  let weatherWindSwiftUIView = WeatherWindSwiftUIView(state: WeatherWindSwiftUIViewState(wind: placeHolderWeatherWind))
   var hostingController: UIHostingController<WeatherWindSwiftUIView>!
-
+  
   func setupCellWith(weatherModel: WeatherModel) {
-    weatherWindSwiftUIView.wind = weatherModel.wind
+    weatherWindSwiftUIView.state.wind = weatherModel.wind
   }
-
+  
   override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-
+    
     super.init(style: style, reuseIdentifier: reuseIdentifier)
     hostingController = UIHostingController<WeatherWindSwiftUIView>(rootView: weatherWindSwiftUIView)
     hostingController.view.translatesAutoresizingMaskIntoConstraints = false
@@ -93,15 +101,15 @@ class WeatherWindCell : UITableViewCell, WeatherCellProtocol {
   }
   
   override func layoutSubviews() {
-      super.layoutSubviews()
-      contentView.frame = contentView.frame.inset(by: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10))
+    super.layoutSubviews()
+    contentView.frame = contentView.frame.inset(by: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10))
   }
   
   private func staticConstraints() -> [NSLayoutConstraint] {
     var constraints: [NSLayoutConstraint] = []
     
     // setup header view and table view contraints
-    constraints.append(contentsOf:[ 
+    constraints.append(contentsOf:[
       hostingController.view.topAnchor.constraint(equalTo: self.contentView.topAnchor),
       hostingController.view.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
       hostingController.view.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),

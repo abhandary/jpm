@@ -62,7 +62,24 @@ enum WindDirection: String {
   case southwest = "SW"
   
   static func from(degrees: Int) -> WindDirection {
-    // @todo convert degrees to wind direction
+    // convert degrees to wind direction
+    if degrees >= 0 && degrees < 45 {
+      return .north
+    } else if degrees >= 45 && degrees < 90 {
+      return .northeast
+    } else if degrees >= 90 && degrees < 135 {
+      return .east
+    } else if degrees >= 135 && degrees < 180 {
+      return .southeast
+    } else if degrees >= 180 && degrees < 225 {
+      return .south
+    } else if degrees >= 225 && degrees < 270 {
+      return .southwest
+    } else if degrees >= 270 && degrees < 315 {
+      return .west
+    } else if degrees >= 315 && degrees < 360 {
+      return .northwest
+    }
     return .north
   }
 }
