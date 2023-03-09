@@ -35,6 +35,7 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## Some things you I would have liked to do if I had more time. 
 * Better handling of the case where there is a last stored search and user has also granted location based search. Currently location based search takes precedence, however we may want the last stored search to take precedence for such cases.
+* Adding more unit tests to cover all APIs and positive and negative test cases of the service layer modules. 
 * Adjusting the date time for the city's timezone. e.g. Sunrise and sunset shows in user's current time zone instead of the
 timezone of the city.
 * Exploring using SwiftUI for the list view. I have used SwiftUI for this demo app I had written earlier to render a list view - https://github.com/abhandary/bookstore. 
