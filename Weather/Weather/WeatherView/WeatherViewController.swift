@@ -44,7 +44,7 @@ class WeatherViewController: UIViewController {
     super.viewDidLoad()
     
     view.backgroundColor = .white
-
+    
     setupSearchBar()
     setupSubSearchView()
     setupLocationButton()
@@ -135,12 +135,12 @@ extension WeatherViewController: UITableViewDataSource, UITableViewDelegate {
     self.tableView.rowHeight = UITableView.automaticDimension
     self.tableView.translatesAutoresizingMaskIntoConstraints = false
     self.view.addSubview(self.tableView)
-
+    
     // register all the wind cell used for the wind cards
     for value in WeatherViewController.rowToCellMapping.values {
       self.tableView.register(value, forCellReuseIdentifier: value.cellReuseIdentifier)
     }
-
+    
     
     // refresh control
     self.tableView.refreshControl = UIRefreshControl()
@@ -180,7 +180,7 @@ extension WeatherViewController: UITableViewDataSource, UITableViewDelegate {
     guard let weather = viewModel.weather else {
       fatalError("expecting a valid weather model")
     }
-
+    
     // find the cell that matches the Wind card type that will be displayed
     guard let cellType = WeatherViewController.rowToCellMapping[indexPath.section] else {
       fatalError("unable to dequeue get a cell type for - \(indexPath)")
@@ -201,7 +201,7 @@ extension WeatherViewController: UITableViewDataSource, UITableViewDelegate {
     if let cellCard = cell as? WeatherCellProtocol {
       cellCard.setupCellWith(weatherModel: weather)
     }
-
+    
     return cell
   }
   
@@ -238,6 +238,13 @@ extension WeatherViewController {
       .sink { weather in self.weatherUpdated()
       }.store(in: &cancellables)
     viewModel.loadLastSearch()
+    
+    // listen for errors
+    viewModel.$fetchError
+      .receive(on: RunLoop.main)
+      .sink { error in self.fetchError(error: error)
+      }.store(in: &cancellables)
+    viewModel.loadLastSearch()
   }
   
   private func weatherUpdated() {
@@ -245,6 +252,37 @@ extension WeatherViewController {
     self.tableView.refreshControl?.endRefreshing()
     self.tableView.reloadData()
   }
+  
+  private func fetchError(error: Error?) {
+    if let error = error {
+      Log.error(TAG, "error recieved at view - \(error)")
+      self.showToast(message: "Something went wrong", font: .systemFont(ofSize: 10))
+    }
+  }
+}
+
+// MARK:- show toast
+extension WeatherViewController {
+  
+  private func showToast(message : String, font: UIFont) {
+    
+    let toastLabel = UILabel(frame: CGRect(x: self.view.frame.size.width/2 - 75, y: self.view.frame.size.height-100, width: 150, height: 35))
+    toastLabel.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+    toastLabel.textColor = UIColor.white
+    toastLabel.font = font
+    toastLabel.textAlignment = .center;
+    toastLabel.text = message
+    toastLabel.alpha = 1.0
+    toastLabel.layer.cornerRadius = 10;
+    toastLabel.clipsToBounds  =  true
+    self.view.addSubview(toastLabel)
+    UIView.animate(withDuration: 6.0, delay: 0.1, options: .curveEaseOut, animations: {
+      toastLabel.alpha = 0.0
+    }, completion: {(isCompleted) in
+      toastLabel.removeFromSuperview()
+    })
+  }
+
 }
 
 // MARK: - helper methods

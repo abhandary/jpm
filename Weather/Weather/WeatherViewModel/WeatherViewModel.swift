@@ -15,6 +15,7 @@ private let TAG = "WeatherViewModel"
 class WeatherViewModel : NSObject {
   
   @MainActor @Published var weather : WeatherModel?
+  @MainActor @Published var fetchError : Error?
   
   private let repo: WeatherRepositoryProtocol
   private let locationManager: CLLocationManager
@@ -57,6 +58,7 @@ class WeatherViewModel : NSObject {
         switch(result) {
         case .failure(let error):
           Log.error(TAG, error)
+          self.publish(error: error)
         case .success(let response):
           self.publishUpdated(weatherResponse: response)
         }
@@ -77,6 +79,7 @@ class WeatherViewModel : NSObject {
         switch(result) {
         case .failure(let error):
           Log.error(TAG, error)
+          self.publish(error: error)
         case .success(let response):
           self.publishUpdated(weatherResponse: response)
         }
@@ -88,6 +91,12 @@ class WeatherViewModel : NSObject {
     let weatherModel  = WeatherModel.from(weatherResponse: weatherResponse)
     DispatchQueue.main.async {
       self.weather = weatherModel
+    }
+  }
+  
+  private func publish(error: Error) {
+    DispatchQueue.main.async {
+      self.fetchError = error
     }
   }
 }
