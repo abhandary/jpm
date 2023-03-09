@@ -25,7 +25,9 @@ class AssetStore : AssetStoreProtocol {
   
   //MARK: public methods
   
-  init(session: NetworkSessionProtocol = URLSession.shared) {
+  init(session: NetworkSessionProtocol = URLSession.shared,
+       cache: NSCache<NSURL, NSData> = NSCache<NSURL, NSData>()) {
+    self.cache = cache
     self.session = session
   }
   
