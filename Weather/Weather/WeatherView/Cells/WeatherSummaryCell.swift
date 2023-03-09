@@ -8,10 +8,7 @@
 import Foundation
 import UIKit
 
-// create cell that shows a UIImageView and a UILabel. 
-// The UIImageView is the weather icon and left aligned with a width of 50 left margin of 10
-// UILabel that shows the weather condition and left aligned and right of the UIImageView
-
+// Displays Weather Icon, which is loaded async, and the weather condition text
 class WeatherSummaryCell : UITableViewCell, WeatherCellProtocol {
 
   let weatherIconImageView = UIImageView()

@@ -22,6 +22,7 @@ class WeatherSubSearchViewBinding: ObservableObject {
   @Published var locationPressed: Bool = false
 }
 
+// Displays a State text field, location and 'Run Search' buttons
 struct WeatherSubSearchView: View {
   
   @ObservedObject var state: WeatherSubSearchViewBinding

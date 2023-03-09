@@ -11,6 +11,7 @@ class WeatherHeaderViewBinding: ObservableObject {
   @Published var text: String = ""
 }
 
+// generic header view, currently displays city name and date time from weather response
 struct WeatherHeaderView: View {
   
   @ObservedObject var state: WeatherHeaderViewBinding

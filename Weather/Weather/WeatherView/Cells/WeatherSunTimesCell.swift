@@ -30,7 +30,7 @@ class WeatherSunTimesSwiftUIViewState : ObservableObject {
   }
 }
 
-
+// Displays sunrise and sunset times
 struct WeatherSunTimesSwiftUIView: View {
   
   @ObservedObject var model: WeatherSunTimesSwiftUIViewState

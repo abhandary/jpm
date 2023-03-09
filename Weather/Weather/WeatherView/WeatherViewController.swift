@@ -128,14 +128,21 @@ extension WeatherViewController {
 extension WeatherViewController: UITableViewDataSource, UITableViewDelegate {
   
   private func setupTableView() {
+    
+    // setup delegate, datasource, rowheight and setup for constraints
     self.tableView.dataSource = self
     self.tableView.delegate = self
-    for value in WeatherViewController.rowToCellMapping.values {
-      self.tableView.register(value, forCellReuseIdentifier: value.cellReuseIdentifier)
-    }
     self.tableView.rowHeight = UITableView.automaticDimension
     self.tableView.translatesAutoresizingMaskIntoConstraints = false
     self.view.addSubview(self.tableView)
+
+    // register all the wind cell used for the wind cards
+    for value in WeatherViewController.rowToCellMapping.values {
+      self.tableView.register(value, forCellReuseIdentifier: value.cellReuseIdentifier)
+    }
+
+    
+    // refresh control
     self.tableView.refreshControl = UIRefreshControl()
     self.tableView.refreshControl?.addTarget(self, action:
                                               #selector(handleRefreshControl),
@@ -143,6 +150,7 @@ extension WeatherViewController: UITableViewDataSource, UITableViewDelegate {
   }
   
   func numberOfSections(in tableView: UITableView) -> Int {
+    // setup each card as a new section so we can add spacing between the cards
     if viewModel.weather == nil {
       return 0
     }
@@ -173,6 +181,7 @@ extension WeatherViewController: UITableViewDataSource, UITableViewDelegate {
       fatalError("expecting a valid weather model")
     }
 
+    // find the cell that matches the Wind card type that will be displayed
     guard let cellType = WeatherViewController.rowToCellMapping[indexPath.section] else {
       fatalError("unable to dequeue get a cell type for - \(indexPath)")
     }
@@ -180,24 +189,20 @@ extension WeatherViewController: UITableViewDataSource, UITableViewDelegate {
     guard let cell = self.tableView.dequeueReusableCell(withIdentifier: cellType.cellReuseIdentifier) else {
       fatalError("unable to dequeue a cell of type for index path - \(indexPath)")
     }
+    
+    // round corners and set a border on the cell
     cell.contentView.backgroundColor = UIColor.white
     cell.contentView.layer.borderColor = UIColor.black.cgColor
     cell.contentView.layer.borderWidth = 1
     cell.contentView.layer.cornerRadius = 8
     cell.contentView.clipsToBounds = true
     
+    // setup the wind card cell with the weather model
     if let cellCard = cell as? WeatherCellProtocol {
       cellCard.setupCellWith(weatherModel: weather)
     }
 
     return cell
-  }
-  
-  private func updateUI(forCell cell: UITableViewCell) {
-    cell.contentView.layer.cornerRadius = 10.0
-    cell.contentView.layer.borderColor = UIColor.black.cgColor
-    cell.contentView.layer.borderWidth = 1.0
-    cell.contentView.clipsToBounds = true
   }
   
   @objc func handleRefreshControl() {
@@ -213,6 +218,7 @@ extension WeatherViewController {
   }
   
   func updateHeaderView() {
+    // header view shows city name and date time that's in the response
     if let cityName = self.viewModel.weather?.cityName,
        let dateTime = self.viewModel.weather?.dateTime {
       self.headerViewBinding.text = "\(cityName) \(dateTime.formatted())"
@@ -224,6 +230,9 @@ extension WeatherViewController {
 extension WeatherViewController {
   
   private func setupViewModel() {
+    
+    // whenever the viewmodel has a new weather model
+    // we recieve it here and update the screen
     viewModel.$weather
       .receive(on: RunLoop.main)
       .sink { weather in self.weatherUpdated()
@@ -246,7 +255,7 @@ extension WeatherViewController {
   private func staticConstraints() -> [NSLayoutConstraint] {
     var constraints: [NSLayoutConstraint] = []
     
-    // setup header view and table view contraints
+    // header view, search bar, the view below the search bar, and table view contraints
     constraints.append(contentsOf:[
       searchBar.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
       searchBar.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),

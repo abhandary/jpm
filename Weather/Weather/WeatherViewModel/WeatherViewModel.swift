@@ -94,6 +94,8 @@ class WeatherViewModel : NSObject {
 
 extension WeatherViewModel : CLLocationManagerDelegate {
   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    
+    // if we succesfully got the location, then fetch weather based on geo-coordinates.
     if let location = locations.first {
       let latitude = location.coordinate.latitude
       let longitude = location.coordinate.longitude

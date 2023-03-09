@@ -31,7 +31,7 @@ class WeatherDetailsSwiftUIViewState : ObservableObject {
   }
 }
 
-
+// weather details - Feels like, Humidity and Pressure
 struct WeatherDetailsSwiftUIView: View {
   
   @ObservedObject var model: WeatherDetailsSwiftUIViewState

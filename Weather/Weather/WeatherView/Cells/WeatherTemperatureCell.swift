@@ -8,12 +8,7 @@
 import Foundation
 import UIKit
 
-// create a cell with two lines text
-// The first line shows an up arrow followed by max temperature, followed by a down arrow followed by min temperature.
-// the max temperature label has a left margin of 10, followed by a padding of 50, followed by min temperature label.
-// The second line shows the current temperature in large letters. 
-// The temperature numbers have a degree symbol after them.
-
+// Displays current temperature and high and low temperatures for the day
 class WeatherTemperatureCell : UITableViewCell, WeatherCellProtocol {
   
   let minTemperatureLabel = UILabel()

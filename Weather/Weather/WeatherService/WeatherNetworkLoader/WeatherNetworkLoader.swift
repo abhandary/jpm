@@ -9,6 +9,7 @@ import Foundation
 
 private let TAG = "WeatherNetworkLoader"
 
+// placeholders for query params.
 enum WeatherAPIParams : String {
   case city = "{city}"
   case state = "{state}"
@@ -25,6 +26,8 @@ enum WeatherAPI {
   static let apiKey = "3f35a564a722135d492c56eb1e2a2f85"
 }
 
+
+// provides type safe end points and helper methods
 extension WeatherAPI: EndPoint {
   func path() -> String {
     switch self {
@@ -35,11 +38,13 @@ extension WeatherAPI: EndPoint {
     }
   }
   
+  // for requests that don't have any params
   func request() -> URLRequest? {
     guard let url = URL(string: path()) else { return nil }
     return URLRequest(url: url)
   }
   
+  // for requests with params
   func request(args: [String:String]) -> URLRequest? {
     var endPoint = path()
     for key in args.keys {
@@ -72,6 +77,7 @@ struct WeatherNetworkLoader: WeatherNetworkLoaderProtocol {
   
   // MARK: - public methods
   
+  // geo-coding weather query
   func query(forCity city: String,
              state: String,
              country: String,
@@ -90,6 +96,7 @@ struct WeatherNetworkLoader: WeatherNetworkLoaderProtocol {
     queryAndDecode(forEndPoint: endPoint, completion: completion)
   }
   
+  // geo-coordinates weather query
   func query(forLat lat: Double, lon: Double, completion: @escaping WeatherNetworkLoaderCompletionResponse) {
     let params = [
       WeatherAPIParams.lat.rawValue : String(lat),
@@ -108,6 +115,8 @@ struct WeatherNetworkLoader: WeatherNetworkLoaderProtocol {
  
   private func queryAndDecode(forEndPoint endPoint: URLRequest,
                               completion: @escaping WeatherNetworkLoaderCompletionResponse) {
+    
+    // load from network and decode response and generate a WeatherResponse if succesfull
     session.loadData(from: endPoint) { result in
       
       switch (result) {

@@ -77,7 +77,7 @@ struct WeatherWindSwiftUIView_Previews: PreviewProvider {
   }
 }
 
-
+// Displays wind speed, direction and gust 
 class WeatherWindCell : UITableViewCell, WeatherCellProtocol {
   
   let weatherWindSwiftUIView = WeatherWindSwiftUIView(state: WeatherWindSwiftUIViewState(wind: placeHolderWeatherWind))
