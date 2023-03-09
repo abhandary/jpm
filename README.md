@@ -23,6 +23,7 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 * Use of Combine as glue between View Model and View layer.
 * Adhering to SOLID principles with each module having a single reponsibility. Use of protocols for service layer modules to enable dependency injection, LSP, interface segregation and dependency-inversion, this also supports use of mocks for unit testing.
 * Layering of the app using MVVM architecture style with a separate service layer.
+* Use of immutable data models to pass data around, to prevent any unexpected behavior. Mapping the network response data model to a data model that's suited for the UI to make it easier for the UI to be consume it.
 * Use of a Repository, this enables abstraction of source of truth. Repo then can then fetch from Network or a local data store as needed.
 * The architecture enables user and location events to flow from UI or business layers through the service layer to the source of truth and enables streaming of data back from the source of truth to the UI layer, enabling unidirectional flow of data. Combine is currently not used as glue between the repo and VM, this can be easily done to support true streaming of state. 
 
