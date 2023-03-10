@@ -1,4 +1,4 @@
-# JPM Take-Home
+# Weather App
 
 ## Video Walkthrough
 
